@@ -12,7 +12,9 @@ class PortfolioController extends Controller
      */
     public function index()
     {
-        //
+        return view('portfolio.index', [
+            'portfolios' => Portfolio::all()
+        ]);
     }
 
     /**
@@ -20,7 +22,7 @@ class PortfolioController extends Controller
      */
     public function create()
     {
-        //
+        return view('portfolio.create');
     }
 
     /**
@@ -28,7 +30,23 @@ class PortfolioController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $request->validate([
+            'nama' => 'required',
+            'deskripsi' => 'required',
+            'gambar' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:1028',
+        ]);
+
+        $imageName = time().'.'.$request->gambar->extension();
+        $request->gambar->move(public_path('images'), $imageName);
+
+        Portfolio::create([
+            'nama' => $request->nama,
+            'deskripsi' => $request->deskripsi,
+            'gambar' => $imageName,
+        ]);
+
+        return redirect()->route('portfolio.index')
+            ->with('success', 'Portfolio created successfully.');
     }
 
     /**
@@ -36,7 +54,9 @@ class PortfolioController extends Controller
      */
     public function show(Portfolio $portfolio)
     {
-        //
+        return view('portfolio.show', [
+            'portfolio' => $portfolio
+        ]);
     }
 
     /**
@@ -44,7 +64,9 @@ class PortfolioController extends Controller
      */
     public function edit(Portfolio $portfolio)
     {
-        //
+        return view('portfolio.edit', [
+            'portfolio' => $portfolio
+        ]);
     }
 
     /**
@@ -52,7 +74,27 @@ class PortfolioController extends Controller
      */
     public function update(Request $request, Portfolio $portfolio)
     {
-        //
+        $request->validate([
+            'nama' => 'required',
+            'deskripsi' => 'required',
+            'gambar' => 'image|mimes:jpeg,png,jpg,gif,svg|max:1028',
+        ]);
+
+        if ($request->hasFile('gambar')) {
+            $imageName = time().'.'.$request->gambar->extension();
+            $request->gambar->move(public_path('images'), $imageName);
+            $portfolio->update([
+                'gambar' => $imageName,
+            ]);
+        }
+
+        $portfolio->update([
+            'nama' => $request->nama,
+            'deskripsi' => $request->deskripsi,
+        ]);
+
+        return redirect()->route('portfolio.index')
+            ->with('success', 'Portfolio updated successfully.');
     }
 
     /**
@@ -60,6 +102,9 @@ class PortfolioController extends Controller
      */
     public function destroy(Portfolio $portfolio)
     {
-        //
+        $portfolio->delete();
+
+        return redirect()->route('portfolio.index')
+            ->with('success', 'Portfolio deleted successfully.');
     }
 }
