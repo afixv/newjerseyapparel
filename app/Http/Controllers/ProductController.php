@@ -12,7 +12,9 @@ class ProductController extends Controller
      */
     public function index()
     {
-        //
+        return view('product.index', [
+            'products' => Product::all()
+        ]);
     }
 
     /**
@@ -20,7 +22,7 @@ class ProductController extends Controller
      */
     public function create()
     {
-        //
+        return view('product.create');
     }
 
     /**
@@ -28,7 +30,29 @@ class ProductController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $request->validate([
+            'nama' => 'required',
+            'harga' => 'required',
+            'deskripsi' => 'required',
+            'gambar' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:1028',
+            'stok' => 'required',
+        ]);
+
+        $imageName = time().'.'.$request->gambar->extension();
+
+        $request->gambar->move(public_path('images'), $imageName);
+
+        Product::create([
+            'nama' => $request->nama,
+            'harga' => $request->harga,
+            'harga_promo' => $request->harga_promo,
+            'deskripsi' => $request->deskripsi,
+            'gambar' => $imageName,
+            'stok' => $request->stok,
+        ]);
+
+        return redirect()->route('product.index')
+            ->with('success', 'Product created successfully.');
     }
 
     /**
@@ -36,7 +60,9 @@ class ProductController extends Controller
      */
     public function show(Product $product)
     {
-        //
+        return view('product.show', [
+            'product' => $product
+        ]);
     }
 
     /**
@@ -44,7 +70,9 @@ class ProductController extends Controller
      */
     public function edit(Product $product)
     {
-        //
+        return view('product.edit', [
+            'product' => $product
+        ]);
     }
 
     /**
@@ -52,7 +80,29 @@ class ProductController extends Controller
      */
     public function update(Request $request, Product $product)
     {
-        //
+        $request->validate([
+            'nama' => 'required',
+            'harga' => 'required',
+            'deskripsi' => 'required',
+            'gambar' => 'image|mimes:jpeg,png,jpg,gif,svg|max:1028',
+            'stok' => 'required',
+        ]);
+
+        $imageName = time().'.'.$request->gambar->extension();
+
+        $request->gambar->move(public_path('images'), $imageName);
+
+        $product->update([
+            'nama' => $request->nama,
+            'harga' => $request->harga,
+            'harga_promo' => $request->harga_promo,
+            'deskripsi' => $request->deskripsi,
+            'gambar' => $imageName,
+            'stok' => $request->stok,
+        ]);
+
+        return redirect()->route('product.index')
+            ->with('success', 'Product updated successfully.');
     }
 
     /**
@@ -60,6 +110,9 @@ class ProductController extends Controller
      */
     public function destroy(Product $product)
     {
-        //
+        $product->delete();
+
+        return redirect()->route('product.index')
+            ->with('success', 'Product deleted successfully.');
     }
 }
