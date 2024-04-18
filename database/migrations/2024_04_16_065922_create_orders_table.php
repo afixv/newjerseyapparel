@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('nama_customer');
             $table->string('no_hp');
             $table->string('alamat')->nullable();
-            $table->integer('status')->default(0);
+            $table->integer('status')->default(1);
             $table->integer('total_harga');
             $table->integer('jumlah_pesanan');
             $table->string('keterangan');
